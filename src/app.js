@@ -29,4 +29,10 @@ app.use(express.static("public"));
 //This is used to perform CRUD operations on the cookies of the user.
 app.use(cookieParser());
 
+//routes import
+//routes are imported like below as we have to do segregation of different routes
+import userRouter from "./routes/user.routes.js";
+
+//routes declarartion
+app.use("/api/v1/users", userRouter);
 export default app;
