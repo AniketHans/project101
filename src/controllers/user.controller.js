@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnClodinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 /**
  * Steps followed for user registration
@@ -25,21 +25,21 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All fields are required");
     }
 
-    const existedUser = User.findOne({ $or: [{ username }, { email }] });
+    const existedUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existedUser) {
-        throw ApiError(409, "User with email or username already existed");
+        throw new ApiError(409, "User with email or username already existed");
     }
 
     //multer gives access to files
-    console.log(files);
+    // console.log(req.files);
     const avatarLocalPath = req.files?.avatar[0]?.path;
     const coverImagePath = req.files?.coverImage[0]?.path;
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required");
     }
 
-    const avatar = await uploadOnClodinary(avatarLocalPath);
-    const coverImage = await uploadOnClodinary(coverImagePath);
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+    const coverImage = await uploadOnCloudinary(coverImagePath);
     if (!avatar) {
         throw new ApiError(400, "Avatar file is required");
     }
@@ -50,6 +50,7 @@ const registerUser = asyncHandler(async (req, res) => {
         fullName: fullname,
         avatar: avatar.url,
         coverImage: coverImage?.url || "",
+        password: password,
     });
 
     //Here we are checking in the db is the above user is successfully created in db or not
